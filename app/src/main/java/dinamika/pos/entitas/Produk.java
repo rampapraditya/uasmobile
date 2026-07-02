@@ -1,20 +1,30 @@
 package dinamika.pos.entitas;
 
 public class Produk {
+
+    private String kode;
     private String nama;
     private String harga;
     private String satuan;
     private String foto; // Menyimpan URI Gambar dari galeri atau path string
 
     // Constructor Baru
-    public Produk(String nama, String harga, String satuan, String foto) {
+    public Produk(String kode, String nama, String harga, String satuan, String foto) {
+        this.kode = kode;
         this.nama = nama;
         this.harga = harga;
         this.satuan = satuan;
         this.foto = foto;
     }
 
-    // Getter dan Setter
+    public String getKode() {
+        return kode;
+    }
+
+    public void setKode(String kode) {
+        this.kode = kode;
+    }
+
     public String getNama() {
         return nama;
     }

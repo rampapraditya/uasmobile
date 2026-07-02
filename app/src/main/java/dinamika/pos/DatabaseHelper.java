@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_PRODUK_TABLE = "CREATE TABLE " + TABLE_PRODUK + "("
-                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_ID + " TEXT PRIMARY KEY ,"
                 + KEY_NAMA + " TEXT,"
                 + KEY_HARGA + " TEXT,"
                 + KEY_SATUAN + " TEXT,"
@@ -45,9 +45,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // 1. FUNGSI SIMPAN DATA (INSERT)
-    public boolean insertProduk(String nama, String harga, String satuan, String fotoUri) {
+    public boolean insertProduk(String kode, String nama, String harga, String satuan, String fotoUri) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put(KEY_ID, kode);
         values.put(KEY_NAMA, nama);
         values.put(KEY_HARGA, harga);
         values.put(KEY_SATUAN, satuan);
@@ -69,6 +70,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 Produk produk = new Produk(
+                        cursor.getString(cursor.getColumnIndexOrThrow(KEY_ID)),
                         cursor.getString(cursor.getColumnIndexOrThrow(KEY_NAMA)),
                         cursor.getString(cursor.getColumnIndexOrThrow(KEY_HARGA)),
                         cursor.getString(cursor.getColumnIndexOrThrow(KEY_SATUAN)),
@@ -84,9 +86,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // 3. FUNGSI HAPUS PRODUK (DELETE) - *Baru*
     // Membantu menghapus produk berdasarkan namanya
-    public boolean deleteProduk(String namaProduk) {
+    public boolean deleteProduk(String kode) {
         SQLiteDatabase db = this.getWritableDatabase();
-        int result = db.delete(TABLE_PRODUK, KEY_NAMA + " = ?", new String[]{namaProduk});
+        int result = db.delete(TABLE_PRODUK, KEY_ID + " = ?", new String[]{kode});
         db.close();
         return result > 0; // Return true jika ada baris yang terhapus
     }
@@ -101,7 +103,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_SATUAN, satuan);
         values.put(KEY_FOTO, fotoUri);
 
-        int result = db.update(TABLE_PRODUK, values, KEY_NAMA + " = ?", new String[]{namaLama});
+        int result = db.update(TABLE_PRODUK, values, KEY_ID + " = ?", new String[]{namaLama});
         db.close();
         return result > 0;
     }
@@ -112,12 +114,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<Produk> listProduk = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String selectQuery = "SELECT * FROM " + TABLE_PRODUK + " WHERE " + KEY_NAMA + " LIKE ?";
+        String selectQuery = "SELECT * FROM " + TABLE_PRODUK + " WHERE " + KEY_ID + " LIKE ?";
         Cursor cursor = db.rawQuery(selectQuery, new String[]{"%" + keyword + "%"});
 
         if (cursor.moveToFirst()) {
             do {
                 Produk produk = new Produk(
+                        cursor.getString(cursor.getColumnIndexOrThrow(KEY_ID)),
                         cursor.getString(cursor.getColumnIndexOrThrow(KEY_NAMA)),
                         cursor.getString(cursor.getColumnIndexOrThrow(KEY_HARGA)),
                         cursor.getString(cursor.getColumnIndexOrThrow(KEY_SATUAN)),

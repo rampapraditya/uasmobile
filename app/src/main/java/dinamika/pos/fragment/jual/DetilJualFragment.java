@@ -28,7 +28,7 @@ import dinamika.pos.R;
 
 public class DetilJualFragment extends Fragment {
 
-    private TextInputEditText etNama, etHarga, etSatuan;
+    private TextInputEditText etKode, etNama, etHarga, etSatuan;
     private Button btnSimpan;
     private CardView cardBrowse;
     private ImageView imgPreview;
@@ -67,6 +67,8 @@ public class DetilJualFragment extends Fragment {
         cardBrowse = view.findViewById(R.id.cardBrowseFoto);
         imgPreview = view.findViewById(R.id.imgPreviewProduk);
         layoutPlaceholder = view.findViewById(R.id.layoutBrowsePlaceholder);
+
+        etKode = view.findViewById(R.id.etKodeProduk);
         etNama = view.findViewById(R.id.etNamaProduk);
         etHarga = view.findViewById(R.id.etHargaProduk);
         etSatuan = view.findViewById(R.id.etSatuanProduk);
@@ -103,6 +105,7 @@ public class DetilJualFragment extends Fragment {
 
         // Modifikasi Logika Tombol Simpan/Perbarui
         btnSimpan.setOnClickListener(v -> {
+            String kode = etKode.getText().toString().trim();
             String nama = etNama.getText().toString().trim();
             String hargaInput = etHarga.getText().toString().trim();
             String satuan = etSatuan.getText().toString().trim();
@@ -135,7 +138,7 @@ public class DetilJualFragment extends Fragment {
                 isSuccess = dbHelper.updateProduk(namaProdukLama, nama, hargaFormatted, satuan, fotoPathYangDisimpan);
             } else {
                 // PERUBAHAN DI SINI: Gunakan fotoPathYangDisimpan, bukan imageUri.toString()
-                isSuccess = dbHelper.insertProduk(nama, hargaFormatted, satuan, fotoPathYangDisimpan);
+                isSuccess = dbHelper.insertProduk(kode, nama, hargaFormatted, satuan, fotoPathYangDisimpan);
             }
 
             if (isSuccess) {

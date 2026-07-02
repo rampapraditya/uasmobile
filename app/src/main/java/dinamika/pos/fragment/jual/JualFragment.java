@@ -80,7 +80,7 @@ public class JualFragment extends Fragment {
 
                 Bundle args = new Bundle();
                 args.putString("aksi", "edit");
-                args.putString("nama_lama", produk.getNama());
+                args.putString("kode", produk.getKode());
                 args.putString("nama", produk.getNama());
                 args.putString("harga", hargaMentah);
                 args.putString("satuan", produk.getSatuan());
@@ -98,7 +98,7 @@ public class JualFragment extends Fragment {
             @Override
             public void onDeleteClick(Produk produk) {
                 // Logika untuk menghapus produk langsung dari database SQLite
-                boolean berhasilHapus = dbHelper.deleteProduk(produk.getNama());
+                boolean berhasilHapus = dbHelper.deleteProduk(produk.getKode());
 
                 if (berhasilHapus) {
                     Toast.makeText(getContext(), "Produk '" + produk.getNama() + "' berhasil dihapus", Toast.LENGTH_SHORT).show();
