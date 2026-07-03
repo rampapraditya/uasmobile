@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import dinamika.pos.entitas.KeranjangModel;
 import dinamika.pos.entitas.Produk;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -23,6 +24,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_SATUAN = "satuan";
     private static final String KEY_FOTO = "foto";
 
+    // 2. NAMA TABEL & KOLOM - TRANSAKSI (INDOK/NOTA)
+    public static final String TABLE_TRANSAKSI = "transaksi";
+    public static final String KEY_TRANS_ID = "id_transaksi";       // Contoh: TX-20231024-001
+    public static final String KEY_TRANS_TANGGAL = "tanggal";      // Format: YYYY-MM-DD HH:MM:SS
+    public static final String KEY_TRANS_TOTAL = "total_bayar";
+
+    // 3. NAMA TABEL & KOLOM - TRANSAKSI DETAIL (ISI KERANJANG)
+    public static final String TABLE_TRANS_DETAIL = "transaksi_detail";
+    public static final String KEY_DETAIL_ID = "id_detail";
+    public static final String KEY_DETAIL_TRANS_ID = "id_transaksi"; // Menghubungkan ke TABLE_TRANSAKSI
+    public static final String KEY_DETAIL_PRODUK_ID = "id_produk";   // Menghubungkan ke TABLE_PRODUK
+    public static final String KEY_DETAIL_NAMA = "nama_produk";      // Duplikasi nama untuk histori jika produk dihapus
+    public static final String KEY_DETAIL_HARGA = "harga_jual";      // Harga saat transaksi terjadi
+    public static final String KEY_DETAIL_QTY = "jumlah";            // Quantity produk yang dibeli
+    public static final String KEY_DETAIL_SUBTOTAL = "subtotal";
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -35,12 +52,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_HARGA + " TEXT,"
                 + KEY_SATUAN + " TEXT,"
                 + KEY_FOTO + " TEXT" + ")";
+
+        // Query Pembuatan Tabel Transaksi
+        String CREATE_TRANSAKSI_TABLE = "CREATE TABLE " + TABLE_TRANSAKSI + "("
+                + KEY_TRANS_ID + " TEXT PRIMARY KEY,"
+                + KEY_TRANS_TANGGAL + " TEXT,"
+                + KEY_TRANS_TOTAL + " INTEGER" + ")";
+
+        // Query Pembuatan Tabel Detail Transaksi (Menggunakan Foreign Key)
+        String CREATE_TRANS_DETAIL_TABLE = "CREATE TABLE " + TABLE_TRANS_DETAIL + "("
+                + KEY_DETAIL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_DETAIL_TRANS_ID + " TEXT,"
+                + KEY_DETAIL_PRODUK_ID + " TEXT,"
+                + KEY_DETAIL_NAMA + " TEXT,"
+                + KEY_DETAIL_HARGA + " INTEGER,"
+                + KEY_DETAIL_QTY + " INTEGER,"
+                + KEY_DETAIL_SUBTOTAL + " INTEGER,"
+                + "FOREIGN KEY(" + KEY_DETAIL_TRANS_ID + ") REFERENCES " + TABLE_TRANSAKSI + "(" + KEY_TRANS_ID + ") ON DELETE CASCADE,"
+                + "FOREIGN KEY(" + KEY_DETAIL_PRODUK_ID + ") REFERENCES " + TABLE_PRODUK + "(" + KEY_ID + ")" + ")";
+
         db.execSQL(CREATE_PRODUK_TABLE);
+        db.execSQL(CREATE_TRANSAKSI_TABLE);
+        db.execSQL(CREATE_TRANS_DETAIL_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUK);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANS_DETAIL);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSAKSI);
+
         onCreate(db);
     }
 
@@ -133,4 +174,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return listProduk;
     }
+
+    // 6. FUNGSI BARU: SIMPAN TRANSAKSI BESERTA DETAILNYA (KERANJANG)
+    public boolean insertTransaksi(String idTransaksi, String tanggal, int totalBayar, List<KeranjangModel> listKeranjang) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        boolean isSuccess = false;
+
+        // Menggunakan transaction agar jika salah satu detail gagal disimpan, seluruh transaksi dibatalkan (aman)
+        db.beginTransaction();
+        try {
+            // A. Insert ke TABLE_TRANSAKSI (Struk Utama)
+            ContentValues transValues = new ContentValues();
+            transValues.put(KEY_TRANS_ID, idTransaksi);
+            transValues.put(KEY_TRANS_TANGGAL, tanggal);
+            transValues.put(KEY_TRANS_TOTAL, totalBayar);
+
+            long transResult = db.insert(TABLE_TRANSAKSI, null, transValues);
+
+            if (transResult != -1) {
+                // B. Loop Keranjang untuk Insert ke TABLE_TRANS_DETAIL
+                for (KeranjangModel item : listKeranjang) {
+                    ContentValues detailValues = new ContentValues();
+                    detailValues.put(KEY_DETAIL_TRANS_ID, idTransaksi);
+                    detailValues.put(KEY_DETAIL_PRODUK_ID, item.getIdProduk());
+                    detailValues.put(KEY_DETAIL_NAMA, item.getNamaProduk());
+                    detailValues.put(KEY_DETAIL_HARGA, item.getHargaJual());
+                    detailValues.put(KEY_DETAIL_QTY, item.getJumlah());
+                    detailValues.put(KEY_DETAIL_SUBTOTAL, item.getSubtotal());
+
+                    long detailResult = db.insert(TABLE_TRANS_DETAIL, null, detailValues);
+                    if (detailResult == -1) {
+                        // Jika ada 1 barang saja yang gagal dimasukkan, lempar exception untuk membatalkan semuanya
+                        throw new Exception("Gagal memasukkan detail transaksi");
+                    }
+                }
+                // Jika semua proses aman, tandai transaksi berhasil
+                db.setTransactionSuccessful();
+                isSuccess = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            isSuccess = false;
+        } finally {
+            db.endTransaction(); // Mengakhiri sesi aman
+            db.close();
+        }
+
+        return isSuccess;
+    }
+
 }
