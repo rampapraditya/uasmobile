@@ -180,10 +180,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         boolean isSuccess = false;
 
-        // Menggunakan transaction agar jika salah satu detail gagal disimpan, seluruh transaksi dibatalkan (aman)
+        // Menggunakan transaction block agar penyimpanan data aman dan serentak
         db.beginTransaction();
         try {
-            // A. Insert ke TABLE_TRANSAKSI (Struk Utama)
+            // 1. Masukkan data ke TABLE_TRANSAKSI (Struk Utama)
             ContentValues transValues = new ContentValues();
             transValues.put(KEY_TRANS_ID, idTransaksi);
             transValues.put(KEY_TRANS_TANGGAL, tanggal);
@@ -191,8 +191,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             long transResult = db.insert(TABLE_TRANSAKSI, null, transValues);
 
+            // Jika struk utama berhasil dibuat, lanjutkan memasukkan isi keranjang
             if (transResult != -1) {
-                // B. Loop Keranjang untuk Insert ke TABLE_TRANS_DETAIL
+
+                // 2. Loop list keranjang untuk dimasukkan ke TABLE_TRANS_DETAIL
                 for (KeranjangModel item : listKeranjang) {
                     ContentValues detailValues = new ContentValues();
                     detailValues.put(KEY_DETAIL_TRANS_ID, idTransaksi);
@@ -203,12 +205,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     detailValues.put(KEY_DETAIL_SUBTOTAL, item.getSubtotal());
 
                     long detailResult = db.insert(TABLE_TRANS_DETAIL, null, detailValues);
+
+                    // Jika ada salah satu item keranjang yang gagal disimpan, batalkan semuanya
                     if (detailResult == -1) {
-                        // Jika ada 1 barang saja yang gagal dimasukkan, lempar exception untuk membatalkan semuanya
-                        throw new Exception("Gagal memasukkan detail transaksi");
+                        throw new Exception("Gagal menyimpan item: " + item.getNamaProduk());
                     }
                 }
-                // Jika semua proses aman, tandai transaksi berhasil
+
+                // Jika semua baris sukses tanpa error, tandai transaksi berhasil
                 db.setTransactionSuccessful();
                 isSuccess = true;
             }
@@ -216,7 +220,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             e.printStackTrace();
             isSuccess = false;
         } finally {
-            db.endTransaction(); // Mengakhiri sesi aman
+            db.endTransaction(); // Akhiri sesi aman database
             db.close();
         }
 
