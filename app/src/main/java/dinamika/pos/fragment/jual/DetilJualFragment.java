@@ -84,7 +84,8 @@ public class DetilJualFragment extends Fragment {
                 btnSimpan.setText("Perbarui Produk");
 
                 // 2. Isi otomatis form inputan dengan data lama
-                namaProdukLama = getArguments().getString("nama_lama");
+                etKode.setEnabled(false);
+                etKode.setText(getArguments().getString("kode"));
                 etNama.setText(getArguments().getString("nama"));
                 etHarga.setText(getArguments().getString("harga"));
                 etSatuan.setText(getArguments().getString("satuan"));
@@ -135,7 +136,7 @@ public class DetilJualFragment extends Fragment {
             // Eksekusi Query berdasarkan status aksi (Edit vs Tambah)
             if (statusAksi.equals("edit")) {
                 // PERUBAHAN DI SINI: Gunakan fotoPathYangDisimpan, bukan imageUri.toString()
-                isSuccess = dbHelper.updateProduk(namaProdukLama, nama, hargaFormatted, satuan, fotoPathYangDisimpan);
+                isSuccess = dbHelper.updateProduk(kode, nama, hargaFormatted, satuan, fotoPathYangDisimpan);
             } else {
                 // PERUBAHAN DI SINI: Gunakan fotoPathYangDisimpan, bukan imageUri.toString()
                 isSuccess = dbHelper.insertProduk(kode, nama, hargaFormatted, satuan, fotoPathYangDisimpan);

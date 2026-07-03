@@ -26,7 +26,6 @@ public class JualFragment extends Fragment {
     private RecyclerView rvHome;
     private FloatingActionButton fabAdd;
     private JualAdapter adapter;
-    private List<Produk> listProduk;
     private DatabaseHelper dbHelper;
 
     @Override
@@ -44,7 +43,7 @@ public class JualFragment extends Fragment {
         dbHelper = new DatabaseHelper(getContext());
 
         // 2. Setup Awal RecyclerView dengan List Kosong
-        listProduk = new ArrayList<>();
+        List<Produk> listProduk = new ArrayList<>();
         adapter = new JualAdapter(listProduk);
 
         // Cek konfigurasi orientasi layar saat ini
@@ -62,12 +61,10 @@ public class JualFragment extends Fragment {
 
 
         fabAdd.setOnClickListener(v -> {
-            if (getParentFragmentManager() != null) {
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new DetilJualFragment())
-                        .addToBackStack(null)
-                        .commit();
-            }
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new DetilJualFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
         // 3. Logika Klik Menu Pilihan di Tombol Titik Tiga
@@ -87,12 +84,10 @@ public class JualFragment extends Fragment {
                 args.putString("foto", produk.getFoto());
                 fragmentEdit.setArguments(args);
 
-                if (getParentFragmentManager() != null) {
-                    getParentFragmentManager().beginTransaction()
-                            .replace(R.id.fragment_container, fragmentEdit)
-                            .addToBackStack(null)
-                            .commit();
-                }
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, fragmentEdit)
+                        .addToBackStack(null)
+                        .commit();
             }
 
             @Override

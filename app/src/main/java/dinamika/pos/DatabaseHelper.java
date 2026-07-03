@@ -95,7 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // 4. FUNGSI EDIT/UBAH DATA (UPDATE) - *Baru*
     // Digunakan saat Anda ingin membuat fitur edit info produk
-    public boolean updateProduk(String namaLama, String namaBaru, String harga, String satuan, String fotoUri) {
+    public boolean updateProduk(String kode, String namaBaru, String harga, String satuan, String fotoUri) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_NAMA, namaBaru);
@@ -103,7 +103,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_SATUAN, satuan);
         values.put(KEY_FOTO, fotoUri);
 
-        int result = db.update(TABLE_PRODUK, values, KEY_ID + " = ?", new String[]{namaLama});
+        int result = db.update(TABLE_PRODUK, values, KEY_ID + " = ?", new String[]{kode});
         db.close();
         return result > 0;
     }
