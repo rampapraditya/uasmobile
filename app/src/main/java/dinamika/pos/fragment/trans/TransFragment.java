@@ -194,8 +194,16 @@ public class TransFragment extends Fragment {
                 keranjangAdapter.notifyDataSetChanged();
             }
             hitungTotalBelanja();
+
+            // --- KODE BARU UNTUK PINDAH TAMPILAN KEMBALI KE RIWAYAT ---
+            if (getActivity() != null) {
+                getParentFragmentManager().popBackStack();
+            }
+            // ---------------------------------------------------------
+
         } else {
             Toast.makeText(getContext(), "Gagal memproses transaksi ke database.", Toast.LENGTH_SHORT).show();
         }
     }
+
 }

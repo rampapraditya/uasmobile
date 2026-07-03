@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#EAEAEA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <!-- LOGO/IKON NOTA KASIR -->
+        <View
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/holo_purple"
+            android:backgroundTint="#F3E5F5"
+            android:foreground="@android:drawable/ic_menu_agenda"
+            android:foregroundGravity="center"
+            android:foregroundTint="@android:color/holo_purple"
+            android:layout_marginEnd="16dp"/>
+
+        <!-- INFORMASI NOTA (ID & TANGGAL) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvRiwayatID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TX-171829302"
+                android:textColor="#212121"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvRiwayatTanggal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="2026-07-03 15:30"
+                android:textColor="#757575"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- SISI KANAN: TOTAL NOMINAL BAYAR -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end"
+            android:layout_marginEnd="12dp">
+
+            <TextView
+                android:id="@+id/tvRiwayatTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rp 120.000"
+                android:textColor="@android:color/holo_purple"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Sukses"
+                android:textColor="#2E7D32"
+                android:textSize="11sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- TOMBOL TITIK TIGA BARU UNTUK KASIR -->
+        <ImageView
+            android:id="@+id/imgMenuMoreRiwayat"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="4dp"
+            android:src="@android:drawable/ic_menu_more"
+            app:tint="#757575" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

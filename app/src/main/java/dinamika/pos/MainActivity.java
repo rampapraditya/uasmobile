@@ -20,6 +20,7 @@ import com.google.android.material.navigation.NavigationView;
 import dinamika.pos.fragment.beli.BeliFragment;
 import dinamika.pos.fragment.jual.JualFragment;
 import dinamika.pos.fragment.home.HomeFragment;
+import dinamika.pos.fragment.trans.RiwayatTransFragment;
 import dinamika.pos.fragment.trans.TransFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (item.getItemId() == R.id.nav_beli) {
             selectedFragment = new BeliFragment();
         } else if (item.getItemId() == R.id.nav_trans) {
-            selectedFragment = new TransFragment();
+            selectedFragment = new RiwayatTransFragment();
         }
 
         if (selectedFragment != null) {

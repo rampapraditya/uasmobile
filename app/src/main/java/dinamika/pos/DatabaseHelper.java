@@ -10,6 +10,7 @@ import java.util.List;
 
 import dinamika.pos.entitas.KeranjangModel;
 import dinamika.pos.entitas.Produk;
+import dinamika.pos.entitas.TransaksiModel;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -227,4 +228,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return isSuccess;
     }
 
+    public List<TransaksiModel> getAllTransaksi() {
+        List<TransaksiModel> list = new ArrayList<>();
+
+        // Query untuk mengambil data transaksi, diurutkan berdasarkan tanggal terbaru ke terlama
+        String query = "SELECT * FROM " + TABLE_TRANSAKSI + " ORDER BY " + KEY_TRANS_TANGGAL + " DESC";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        // Lakukan perulangan jika data ditemukan dalam database
+        if (cursor.moveToFirst()) {
+            do {
+                TransaksiModel trans = new TransaksiModel(
+                        cursor.getString(cursor.getColumnIndexOrThrow(KEY_TRANS_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(KEY_TRANS_TANGGAL)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(KEY_TRANS_TOTAL))
+                );
+                list.add(trans);
+            } while (cursor.moveToNext());
+        }
+
+        // Tutup koneksi cursor dan database agar tidak terjadi memory leak
+        cursor.close();
+        db.close();
+
+        return list;
+    }
+
+    public List<KeranjangModel> getDetailTransaksi(String idTransaksi) {
+        List<KeranjangModel> list = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_TRANS_DETAIL + " WHERE " + KEY_DETAIL_TRANS_ID + " = ?";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, new String[]{idTransaksi});
+
+        if (cursor.moveToFirst()) {
+            do {
+                // Kita petakan kembali data SQLite ke objek KeranjangModel agar mudah dibaca
+                KeranjangModel item = new KeranjangModel(
+                        cursor.getString(cursor.getColumnIndexOrThrow(KEY_DETAIL_PRODUK_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(KEY_DETAIL_NAMA)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(KEY_DETAIL_HARGA)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(KEY_DETAIL_QTY))
+                );
+                list.add(item);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return list;
+    }
 }
